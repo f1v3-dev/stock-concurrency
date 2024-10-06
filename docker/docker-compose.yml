@@ -11,3 +11,10 @@ services:
       TZ: Asia/Seoul
     command:
       - --character-set-server=utf8mb4
+
+  redis:
+    image: redis:latest
+    container_name: redis-container
+    restart: always
+    ports:
+      - "6379:6379"
