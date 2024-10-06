@@ -100,7 +100,7 @@ public class TransactionStockService {
 쉽게 설명해보자.
 
 1. 스레드 A가 트랜잭션을 시작하고, stockService.decrease() 메서드를 호출함.
-2. 스레드 B가 트래잭션을 시작하고, stockService.decrease() 메서드를 호출하였지만, 대기하고 있음.
+2. 스레드 B가 트랜잭션을 시작하고, stockService.decrease() 메서드를 호출하였지만, 대기하고 있음.
 3. 스레드 A의 decrease() 메서드가 끝난 후 커밋을 하기 전 단계!
 4. 이 때, 스레드 B가 decrease() 메서드 내부에서 **조회** 를 진행하여 stock 수량을 조회함.
 
