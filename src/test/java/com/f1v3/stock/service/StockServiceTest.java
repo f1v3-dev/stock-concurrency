@@ -47,7 +47,7 @@ class StockServiceTest {
     }
 
     @Test
-    void 동시_100개_요청() throws InterruptedException {
+    void 동시_100개_요청_실패() throws InterruptedException {
 
         // 갱신 손실(lost update) 문제가 발생하는 테스트
 
@@ -71,7 +71,7 @@ class StockServiceTest {
         latch.await();
 
         // then
-        Stock stock = stockRepository.findById(1L).orElseThrow();
+        Stock stock = stockRepository.findByProductId(1L);
         assertEquals(0, stock.getQuantity());
     }
 }

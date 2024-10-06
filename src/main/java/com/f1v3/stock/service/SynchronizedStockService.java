@@ -6,18 +6,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 /**
- * Stock Service.
+ * Stock Service with Synchronized.
  *
  * @author 정승조
  * @version 2024. 10. 06.
  */
 @Service
 @RequiredArgsConstructor
-public class StockService {
+public class SynchronizedStockService {
 
     private final StockRepository stockRepository;
 
-    public void decrease(Long productId, Long quantity) {
+    //    @Transactional
+    public synchronized void decrease(Long productId, Long quantity) {
 
         Stock stock = stockRepository.findByProductId(productId);
 

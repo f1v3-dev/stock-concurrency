@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * {class name}.
  *
  * @author 정승조
- * @version 2024. 10. 05.
+ * @version 2024. 10. 06.
  */
 @SpringBootTest
 class PessimisticLockStockServiceTest {
@@ -32,17 +32,17 @@ class PessimisticLockStockServiceTest {
     @BeforeEach
     public void setUp() {
         stockRepository.saveAndFlush(new Stock(1L, 100L));
-        ;
     }
 
     @AfterEach
-    public void tearDown() {
+    public void after() {
         stockRepository.deleteAll();
     }
 
     @Test
-    void 비관적_락_동시_100개_요청() throws InterruptedException {
+    void 비관적_락_재고_감소() throws InterruptedException {
 
+        // when
         int threadCount = 100;
 
         ExecutorService executorService = Executors.newFixedThreadPool(32);
@@ -61,7 +61,8 @@ class PessimisticLockStockServiceTest {
 
         latch.await();
 
-        Stock stock = stockRepository.findById(1L).orElseThrow();
+        // then
+        Stock stock = stockRepository.findByProductId(1L);
         assertEquals(0, stock.getQuantity());
     }
 

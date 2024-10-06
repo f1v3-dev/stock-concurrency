@@ -1,37 +1,36 @@
 package com.f1v3.stock.facade;
 
 import com.f1v3.stock.service.OptimisticLockStockService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Component;
 
 /**
- * Optimistic Lock Facade.
+ * {class name}.
  *
  * @author 정승조
  * @version 2024. 10. 06.
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class OptimisticLockFacade {
 
-    private final OptimisticLockStockService optimisticLockStockService;
+    private final OptimisticLockStockService stockService;
 
-    public OptimisticLockFacade(OptimisticLockStockService optimisticLockStockService) {
-        this.optimisticLockStockService = optimisticLockStockService;
-    }
-
-    public void decrease(Long id, Long quantity) throws InterruptedException {
+    public void decrease(Long productId, Long quantity) throws InterruptedException {
 
         while (true) {
             try {
-                optimisticLockStockService.decrease(id, quantity);
+                stockService.decrease(productId, quantity);
 
                 break;
             } catch (ObjectOptimisticLockingFailureException e) {
-                log.error("{} 발생, 재시도가 필요합니다.", e.getClass().getSimpleName(), e);
-                Thread.sleep(50);
+                log.info("재고 감소 중 버전 충돌이 발생하였습니다.");
+                Thread.sleep(30);
             }
         }
     }
 }
+

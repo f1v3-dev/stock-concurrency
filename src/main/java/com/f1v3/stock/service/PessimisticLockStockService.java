@@ -1,29 +1,26 @@
 package com.f1v3.stock.service;
 
 import com.f1v3.stock.domain.Stock;
-import com.f1v3.stock.repository.StockRepository;
+import com.f1v3.stock.repository.DbLockStockRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Pessimistic Lock Service.
+ * Stock Service With Optimistic Lock.
  *
  * @author 정승조
- * @version 2024. 10. 05.
+ * @version 2024. 10. 06.
  */
 @Service
+@RequiredArgsConstructor
 public class PessimisticLockStockService {
 
-    private final StockRepository stockRepository;
-
-    public PessimisticLockStockService(StockRepository stockRepository) {
-        this.stockRepository = stockRepository;
-    }
+    private final DbLockStockRepository stockRepository;
 
     @Transactional
-    public void decrease(Long id, Long quantity) {
-
-        Stock stock = stockRepository.findByIdWithPessimisticLock(id);
+    public void decrease(Long productId, Long quantity) {
+        Stock stock = stockRepository.findByProductIdWithPessimistic(productId);
 
         stock.decrease(quantity);
         stockRepository.save(stock);
