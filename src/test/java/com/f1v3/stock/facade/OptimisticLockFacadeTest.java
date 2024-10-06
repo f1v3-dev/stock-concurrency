@@ -1,4 +1,4 @@
-package com.f1v3.stock.service;
+package com.f1v3.stock.facade;
 
 import com.f1v3.stock.domain.Stock;
 import com.f1v3.stock.repository.StockRepository;
@@ -18,42 +18,42 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * {class name}.
  *
  * @author 정승조
- * @version 2024. 10. 05.
+ * @version 2024. 10. 06.
  */
 @SpringBootTest
-class OptimisticLockStockServiceTest {
+class OptimisticLockFacadeTest {
 
     @Autowired
-    OptimisticLockStockService stockService;
+    OptimisticLockFacade optimisticLockFacade;
 
     @Autowired
     StockRepository stockRepository;
 
     @BeforeEach
-    public void setUp() {
+    public void before() {
         stockRepository.saveAndFlush(new Stock(1L, 100L));
     }
 
     @AfterEach
-    public void tearDown() {
+    public void after() {
         stockRepository.deleteAll();
     }
 
     @Test
-    void 낙관적_락_동시_100개_요청() throws InterruptedException {
+    void 동시_100개_요청() throws InterruptedException {
 
-        int threadCount = 2;
+        int threadCount = 100;
 
         ExecutorService executorService = Executors.newFixedThreadPool(32);
 
         CountDownLatch latch = new CountDownLatch(threadCount);
 
         for (int i = 0; i < threadCount; i++) {
-            executorService.submit(() -> {
+            executorService.execute(() -> {
                 try {
-                    stockService.decrease(1L, 1L);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    optimisticLockFacade.decrease(1L, 1L);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 } finally {
                     latch.countDown();
                 }
@@ -65,6 +65,5 @@ class OptimisticLockStockServiceTest {
         Stock stock = stockRepository.findById(1L).orElseThrow();
         assertEquals(0, stock.getQuantity());
     }
-
 
 }
