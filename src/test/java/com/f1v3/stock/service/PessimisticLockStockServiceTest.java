@@ -41,7 +41,7 @@ class PessimisticLockStockServiceTest {
     }
 
     @Test
-    public void 낙관적_락_동시_100개_요청() throws InterruptedException {
+    void 비관적_락_동시_100개_요청() throws InterruptedException {
 
         int threadCount = 100;
 
