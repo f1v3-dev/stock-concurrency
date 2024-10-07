@@ -4,6 +4,7 @@ import com.f1v3.stock.domain.Stock;
 import com.f1v3.stock.repository.StockRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,7 +37,8 @@ class StockServiceTest {
     }
 
     @Test
-    void 재고_감소_테스트() {
+    @DisplayName("재고 1개 감소 테스트")
+    void test1() {
 
         // when
         stockService.decrease(1L, 1L);
@@ -47,11 +49,10 @@ class StockServiceTest {
     }
 
     @Test
-    void 동시_100개_요청_실패() throws InterruptedException {
+    @DisplayName("동시에 100개 요청 테스트 - 실패")
+    void test2() throws InterruptedException {
 
         // 갱신 손실(lost update) 문제가 발생하는 테스트
-
-        // when
         int threadCount = 100;
 
         ExecutorService executorService = Executors.newFixedThreadPool(32);
