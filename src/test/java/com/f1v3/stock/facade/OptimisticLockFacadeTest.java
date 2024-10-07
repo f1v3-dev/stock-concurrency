@@ -1,9 +1,10 @@
-package com.f1v3.stock.service;
+package com.f1v3.stock.facade;
 
 import com.f1v3.stock.domain.Stock;
 import com.f1v3.stock.repository.StockRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,12 +15,11 @@ import java.util.concurrent.Executors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
 @SpringBootTest
-class StockServiceTest {
+class OptimisticLockFacadeTest {
 
     @Autowired
-    StockService stockService;
+    OptimisticLockFacade optimisticLockFacade;
 
     @Autowired
     StockRepository stockRepository;
@@ -29,27 +29,14 @@ class StockServiceTest {
         stockRepository.saveAndFlush(new Stock(1L, 100L));
     }
 
-
     @AfterEach
     public void after() {
         stockRepository.deleteAll();
     }
 
     @Test
-    void 재고_감소_테스트() {
-
-        // when
-        stockService.decrease(1L, 1L);
-
-        // then
-        Stock stock = stockRepository.findById(1L).orElseThrow();
-        assertEquals(99, stock.getQuantity());
-    }
-
-    @Test
-    void 동시_100개_요청_실패() throws InterruptedException {
-
-        // 갱신 손실(lost update) 문제가 발생하는 테스트
+    @DisplayName("퍼사드 내부에서 낙관적 락 - 성공")
+    void test1() throws InterruptedException {
 
         // when
         int threadCount = 100;
@@ -61,7 +48,9 @@ class StockServiceTest {
         for (int i = 0; i < threadCount; i++) {
             executorService.submit(() -> {
                 try {
-                    stockService.decrease(1L, 1L);
+                    optimisticLockFacade.decrease(1L, 1L);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 } finally {
                     latch.countDown();
                 }
@@ -73,5 +62,7 @@ class StockServiceTest {
         // then
         Stock stock = stockRepository.findByProductId(1L);
         assertEquals(0, stock.getQuantity());
+
     }
+
 }

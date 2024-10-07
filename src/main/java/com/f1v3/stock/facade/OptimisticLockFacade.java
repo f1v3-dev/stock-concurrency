@@ -7,7 +7,7 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Component;
 
 /**
- * {class name}.
+ * Optimistic Lock Facade.
  *
  * @author 정승조
  * @version 2024. 10. 06.

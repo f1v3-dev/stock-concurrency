@@ -4,6 +4,7 @@ import com.f1v3.stock.domain.Stock;
 import com.f1v3.stock.repository.StockRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,6 +38,15 @@ class PessimisticLockStockServiceTest {
     @AfterEach
     public void after() {
         stockRepository.deleteAll();
+    }
+
+    @Test
+    @DisplayName("비관적 락 재고 감소 테스트")
+    void test1() {
+        stockService.decrease(1L, 1L);
+
+        Stock stock = stockRepository.findByProductId(1L);
+        assertEquals(99, stock.getQuantity());
     }
 
     @Test

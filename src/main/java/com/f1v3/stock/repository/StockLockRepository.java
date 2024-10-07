@@ -12,7 +12,7 @@ import org.springframework.data.jpa.repository.Query;
  * @author 정승조
  * @version 2024. 10. 06.
  */
-public interface DbLockStockRepository extends JpaRepository<Stock, Long> {
+public interface StockLockRepository extends JpaRepository<Stock, Long> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select s from Stock s where s.productId = :productId")
