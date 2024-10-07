@@ -44,7 +44,7 @@ class StockServiceTest {
         stockService.decrease(1L, 1L);
 
         // then
-        Stock stock = stockRepository.findById(1L).orElseThrow();
+        Stock stock = stockRepository.findByProductId(1L);
         assertEquals(99, stock.getQuantity());
     }
 
