@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Stock Service With Optimistic Lock.
+ * Stock Service With Pessimistic Lock.
  *
  * @author 정승조
  * @version 2024. 10. 06.
