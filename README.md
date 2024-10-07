@@ -155,6 +155,9 @@ Application 에서 예외(`ObjectOptimisticLockingFailureException`) 가 발생�
 
 ![named.png](img/named.png)
 
+> 네임드 락을 거는 커넥션 들을 따로 관리하기 위해 DataSource 를 여러 개 사용하는 방법도 있다.  
+> Lock 에 모든 커넥션이 사용된다면 문제가 발생할 수 있으므로, 분리하는걸 권장한다.
+
 ---
 
 ## Reference
