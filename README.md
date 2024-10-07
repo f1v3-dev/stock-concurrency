@@ -1,4 +1,4 @@
-# 동시성 이슈 해결 방법 
+# 동시성 이슈 해결 방법
 
 ### 목적
 
@@ -37,16 +37,17 @@ _실제 상황_
 작성한 재고 감소 메서드에 `synchronized` 키워드를 붙여 동시에 접근하지 못하도록 막아보자.
 
 ```java
-    @Transactional
-    public synchronized void decrease(Long id, Long quantity) {
 
-        Stock stock = stockRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("stock not found"));
+@Transactional
+public synchronized void decrease(Long id, Long quantity) {
 
-        stock.decrease(quantity);
+    Stock stock = stockRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("stock not found"));
 
-        stockRepository.save(stock);
-    }
+    stock.decrease(quantity);
+
+    stockRepository.save(stock);
+}
 ```
 
 _결과_
@@ -113,11 +114,49 @@ public class TransactionStockService {
 그렇다면, `@Transactional` 어노테이션을 없애고 `synchronized` 키워드를 쓰면 될까?
 
 - **하나의 프로세스 안에서만 보장** 되는 것을 기억하자.
-- 만약, 여러 대의 서버가 존재한다면 이 방법은 적합하지 않다. 
+- 만약, 여러 대의 서버가 존재한다면 이 방법은 적합하지 않다.
 - 즉, Application Level 에서 해결 방안을 찾는 것은 적합하지 않아 보인다.
 
+## 2. Database Lock
+
+두 번째로 알아볼 방법은, `Database Lock` 기법을 사용하는 것이다.
+
+대표적으로, **낙관적 락(Optimistic Lock)** 과 **비관적 락(Pessimistic Lock)** , **네임드 락(Named Lock)** 기법이 있다.
+
+### 낙관적 락 (Optimistic Lock)
+
+데이터 자체에 락을 거는 기법이 아닌, 데이터의 버전(Version) 을 이용하여 데이터 정합성을 맞추는 기법이다.
+
+- 데이터를 조회할 때 버전을 함께 조회한다.
+- 데이터를 수정할 때 버전도 함께 수정한다. (update 쿼리에 `version + 1`, where 절에 `version = ?` 추가)
+- 만약, 버전이 다르다면, 다른 사용자가 수정한 것이므로 예외가 발생하게 된다.
+
+![img.png](img/optimistic.png)
+
+Application 에서 예외(`ObjectOptimisticLockingFailureException`) 가 발생하며, 해당 예외를 처리하여 재시도하는 방식을 사용할 수도 있다.
+
+### 비관적 락 (Pessimistic Lock)
+
+데이터베이스 로우에 직접 락을 걸어 다른 사용자가 접근하지 못하도록 하는 방식이다.
+
+- `SELECT ... FOR UPDTAE` 방식을 통해 쓰기 락을 걸게 된다.
+- 공유 자원에 여러 스레드가 권한을 요청하는 것이기 때문에 데드락이 발생할 수 있다.
+
+![pessimistic.png](img/pessimistic.png)
+
+> 충돌이 많이 발생하는 상황에는 비관적 락, 충돌이 적게 발생하는 상황에는 낙관적 락 을 사용하는 것이 성능상 이점이 있다.
+
+### 네임드 락 (Named Lock)
+
+말 그대로, 이름을 통해 락을 거는 기법을 말한다.
+
+- `SELECT GET_LOCK('lock_name', timeout)` 을 통해 락 획득
+- `SELECT RELEASE_LOCK('lock_name')` 을 통해 락 해제
+
+![named.png](img/named.png)
 
 ---
 
 ## Reference
+
 [[시스템디자인] 재고시스템으로 알아보는 동시성이슈 해결방법](https://nooblette.tistory.com/entry/%EC%8B%9C%EC%8A%A4%ED%85%9C-%EB%94%94%EC%9E%90%EC%9D%B8-%EC%9E%AC%EA%B3%A0%EC%8B%9C%EC%8A%A4%ED%85%9C%EC%9C%BC%EB%A1%9C-%EC%95%8C%EC%95%84%EB%B3%B4%EB%8A%94-%EB%8F%99%EC%8B%9C%EC%84%B1%EC%9D%B4%EC%8A%88-%ED%95%B4%EA%B2%B0%EB%B0%A9%EB%B2%95-13-%EB%AC%B8%EC%A0%9C-%EC%9D%B8%EC%8B%9D%EA%B3%BC-Application-Level%EB%A1%9C-%ED%95%B4%EA%B2%B0%ED%95%98%EA%B8%B0)
